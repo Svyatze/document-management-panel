@@ -2,17 +2,19 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
 
-import { DocumentService } from '../../../../core/services';
+import { DocumentService, NotificationService } from '../../../../core/services';
+import { DialogService } from '../../../../shared/services';
 import { DocumentModel, DocumentStatus } from '../../../../models';
+
 
 @Component({
   selector: 'app-document-form',
@@ -26,7 +28,8 @@ import { DocumentModel, DocumentStatus } from '../../../../models';
     MatInputModule,
     MatIconModule,
     MatProgressBarModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatSelectModule
   ],
   templateUrl: './document-form.component.html',
   styleUrl: './document-form.component.scss'
@@ -36,7 +39,8 @@ export class DocumentFormComponent implements OnInit {
   private documentService = inject(DocumentService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private notification = inject(NotificationService);
+  private dialogService = inject(DialogService);
 
   public documentForm!: FormGroup;
   public isEditMode = signal(false);
@@ -44,8 +48,9 @@ export class DocumentFormComponent implements OnInit {
   public selectedFile = signal<File | null>(null);
   public currentDocument = signal<DocumentModel | null>(null);
   public errorMessage = signal<string | null>(null);
+  public DocumentStatus = DocumentStatus;
 
-  public ngOnInit(): void {
+  ngOnInit(): void {
     this.initForm();
 
     const documentId = this.route.snapshot.paramMap.get('id');
@@ -57,7 +62,8 @@ export class DocumentFormComponent implements OnInit {
 
   private initForm(): void {
     this.documentForm = this.formBuilder.group({
-      name: ['', [Validators.required]]
+      name: ['', [Validators.required]],
+      status: [''],
     });
   }
 
@@ -68,7 +74,8 @@ export class DocumentFormComponent implements OnInit {
       next: (document) => {
         this.currentDocument.set(document);
         this.documentForm.patchValue({
-          name: document.name
+          name: document.name,
+          status: document.status
         });
         this.loading.set(false);
       },
@@ -96,7 +103,7 @@ export class DocumentFormComponent implements OnInit {
     }
   }
 
-  public onSubmit(asDraft: boolean): void {
+  public onSubmit(asDraft: boolean = false): void {
     if (this.documentForm.invalid) {
       return;
     }
@@ -111,11 +118,45 @@ export class DocumentFormComponent implements OnInit {
     }
   }
 
+  public submitForReview(): void {
+    if (!this.currentDocument() || this.documentForm.invalid) {
+      return;
+    }
+
+    this.dialogService.confirm({
+      title: 'Submit for Review',
+      message: 'Are you sure you want to submit this document for review?',
+      confirmText: 'Submit',
+      cancelText: 'Cancel'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading.set(true);
+
+        this.documentService.updateDocument({
+          id: this.currentDocument()!.id!,
+          name: this.documentForm.get('name')?.value,
+          status: DocumentStatus.READY_FOR_REVIEW
+        }).subscribe({
+          next: () => {
+            this.notification.success('Document submitted for review');
+
+            void this.router.navigate(['/dashboard/documents']);
+          },
+          error: (error) => {
+            console.error('Error submitting document:', error);
+
+            this.errorMessage.set('Failed to submit document for review');
+            this.loading.set(false);
+          }
+        });
+      }
+    });
+  }
+
   private createDocument(asDraft: boolean): void {
     if (!this.selectedFile()) {
       this.errorMessage.set('Please select a file');
       this.loading.set(false);
-
       return;
     }
 
@@ -131,13 +172,11 @@ export class DocumentFormComponent implements OnInit {
         const message = asDraft
           ? 'Document saved as draft'
           : 'Document submitted for review';
-        this.snackBar.open(message, 'Close', { duration: 3000 });
-
-        void this.router.navigate(['/dashboard/documents']);
+        this.notification.success(message);
+        this.router.navigate(['/dashboard/documents']);
       },
       error: (error) => {
         console.error('Error creating document:', error);
-
         this.errorMessage.set('Failed to create document');
         this.loading.set(false);
       }
@@ -156,16 +195,22 @@ export class DocumentFormComponent implements OnInit {
       name
     }).subscribe({
       next: () => {
-        this.snackBar.open('Document updated successfully', 'Close', { duration: 3000 });
+        this.notification.success('Document updated successfully');
+
         void this.router.navigate(['/dashboard/documents']);
       },
       error: (error) => {
         console.error('Error updating document:', error);
-
         this.errorMessage.set('Failed to update document');
         this.loading.set(false);
       }
     });
+  }
+
+  public canSubmitForReview(): boolean {
+    return this.isEditMode() &&
+      this.currentDocument() !== null &&
+      this.currentDocument()!.status === DocumentStatus.DRAFT;
   }
 
   public removeFile(): void {

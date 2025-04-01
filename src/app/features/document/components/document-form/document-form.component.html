@@ -27,6 +27,27 @@
         }
       </mat-form-field>
 
+      @if (isEditMode() && currentDocument()) {
+        <div class="document-info">
+          <div class="status-info">
+            <span class="label">Current Status:</span>
+            <span class="status-chip" [ngClass]="'status-' + currentDocument()!.status.toLowerCase()">
+              {{ currentDocument()!.status }}
+            </span>
+          </div>
+
+          @if (currentDocument()?.fileUrl) {
+            <div class="file-link">
+              <span class="label">File:</span>
+              <a [href]="currentDocument()!.fileUrl" target="_blank">
+                <mat-icon>description</mat-icon>
+                View original file
+              </a>
+            </div>
+          }
+        </div>
+      }
+
       @if (!isEditMode()) {
         <div class="file-upload-container">
           @if (!selectedFile()) {
@@ -55,11 +76,21 @@
     <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
 
     @if (isEditMode()) {
+      @if (canSubmitForReview()) {
+        <button
+          mat-raised-button
+          color="accent"
+          [disabled]="documentForm.invalid || loading()"
+          (click)="submitForReview()">
+          Submit for Review
+        </button>
+      }
+
       <button
         mat-raised-button
         color="primary"
         [disabled]="documentForm.invalid || loading()"
-        (click)="onSubmit(false)">
+        (click)="onSubmit()">
         Save Changes
       </button>
     } @else {

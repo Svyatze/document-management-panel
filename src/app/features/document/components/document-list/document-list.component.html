@@ -76,7 +76,6 @@
             <td mat-cell *matCellDef="let document">{{ document.updatedAt | date:'medium' }}</td>
           </ng-container>
 
-          <!-- Actions Column -->
           <ng-container matColumnDef="actions">
             <th mat-header-cell *matHeaderCellDef>Actions</th>
             <td mat-cell *matCellDef="let document">
@@ -107,7 +106,7 @@
                 @if (canRevoke(document)) {
                   <button mat-menu-item (click)="revokeDocument(document)">
                     <mat-icon>undo</mat-icon>
-                    <span>Withdraw</span>
+                    <span>Revoke</span>
                   </button>
                 }
 

@@ -171,7 +171,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
       this.documentService.deleteDocument(this.document()!.id!).subscribe({
         next: () => {
-          this.router.navigate(['/dashboard/documents']);
+          void this.router.navigate(['/dashboard/documents']);
         },
         error: (error) => {
           console.error('Error deleting document:', error);
