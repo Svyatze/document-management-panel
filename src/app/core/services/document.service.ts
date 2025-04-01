@@ -1,23 +1,25 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { signal } from '@angular/core';
+
 import { environment } from '../../../environments/environment';
 import {
-  Document,
+  DocumentModel,
   DocumentCreateRequest,
   DocumentListRequest,
   DocumentListResponse,
   DocumentUpdateRequest
 } from '../../models';
-import { signal } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class DocumentService {
   private apiUrl = `${environment.apiUrl}/document`;
 
-  public documents = signal<Document[]>([]);
+  public documents = signal<DocumentModel[]>([]);
   public totalCount = signal<number>(0);
 
   constructor(private http: HttpClient) {}
@@ -52,21 +54,21 @@ export class DocumentService {
       );
   }
 
-  public getDocumentById(id: string): Observable<Document> {
-    return this.http.get<Document>(`${this.apiUrl}/${id}`);
+  public getDocumentById(id: string): Observable<DocumentModel> {
+    return this.http.get<DocumentModel>(`${this.apiUrl}/${id}`);
   }
 
-  public createDocument(request: DocumentCreateRequest): Observable<Document> {
+  public createDocument(request: DocumentCreateRequest): Observable<DocumentModel> {
     const formData = new FormData();
     formData.append('name', request.name);
     formData.append('status', request.status.toString());
     formData.append('file', request.file);
 
-    return this.http.post<Document>(this.apiUrl, formData);
+    return this.http.post<DocumentModel>(this.apiUrl, formData);
   }
 
-  public updateDocument(request: DocumentUpdateRequest): Observable<Document> {
-    return this.http.patch<Document>(`${this.apiUrl}/${request.id}`, {
+  public updateDocument(request: DocumentUpdateRequest): Observable<DocumentModel> {
+    return this.http.patch<DocumentModel>(`${this.apiUrl}/${request.id}`, {
       name: request.name,
       status: request.status
     });

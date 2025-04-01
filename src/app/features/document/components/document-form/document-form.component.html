@@ -1,1 +1,81 @@
-<p>document-form works!</p>
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>
+      @if (isEditMode()) {
+        Edit Document
+      } @else {
+        Add New Document
+      }
+    </mat-card-title>
+  </mat-card-header>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <mat-card-content>
+    @if (errorMessage()) {
+      <div class="error-message">{{ errorMessage() }}</div>
+    }
+
+    <form [formGroup]="documentForm" (ngSubmit)="onSubmit(false)" class="document-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Document Name</mat-label>
+        <input matInput formControlName="name" placeholder="Enter document name">
+        @if (documentForm.get('name')?.touched && documentForm.get('name')?.hasError('required')) {
+          <mat-error>Document name is required</mat-error>
+        }
+      </mat-form-field>
+
+      @if (!isEditMode()) {
+        <div class="file-upload-container">
+          @if (!selectedFile()) {
+            <div class="file-upload-area">
+              <input type="file" id="fileUpload" (change)="onFileSelected($event)" style="display: none;">
+              <label for="fileUpload" class="file-upload-label">
+                <mat-icon>cloud_upload</mat-icon>
+                <span>Click to upload file</span>
+              </label>
+            </div>
+          } @else {
+            <div class="selected-file">
+              <mat-icon>description</mat-icon>
+              <span class="file-name">{{ selectedFile()!.name }}</span>
+              <button type="button" mat-icon-button color="warn" (click)="removeFile()">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </form>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-button type="button" (click)="cancelEdit()">Cancel</button>
+
+    @if (isEditMode()) {
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="documentForm.invalid || loading()"
+        (click)="onSubmit(false)">
+        Save Changes
+      </button>
+    } @else {
+      <button
+        mat-raised-button
+        [disabled]="documentForm.invalid || !selectedFile() || loading()"
+        (click)="onSubmit(true)">
+        Save as Draft
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="documentForm.invalid || !selectedFile() || loading()"
+        (click)="onSubmit(false)">
+        Submit for Review
+      </button>
+    }
+  </mat-card-actions>
+</mat-card>

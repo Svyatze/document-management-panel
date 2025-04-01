@@ -1,6 +1,6 @@
 export enum DocumentStatus {
   DRAFT = 'DRAFT',
-  PENDING_REVIEW = 'PENDING_REVIEW',
+  READY_FOR_REVIEW = 'READY_FOR_REVIEW',
   IN_REVIEW = 'IN_REVIEW',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
@@ -14,7 +14,7 @@ export interface Creator {
   role: 'USER' | 'REVIEWER';
 }
 
-export interface Document {
+export interface DocumentModel {
   id?: string;
   name: string;
   status: DocumentStatus;
@@ -46,6 +46,6 @@ export interface DocumentListRequest {
 }
 
 export interface DocumentListResponse {
-  results: Document[];
+  results: DocumentModel[];
   count: number;
 }

@@ -1,1 +1,49 @@
-<p>dashboard-home works!</p>
+<div class="dashboard-container">
+  <mat-toolbar color="primary" class="toolbar">
+    <button mat-icon-button (click)="sidenav.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="toolbar-title">Document Management System</span>
+    <span class="spacer"></span>
+
+    @if (currentUser(); as user) {
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>person</mat-icon>
+        <span class="username">{{ user.fullName }}</span>
+      </button>
+      <mat-menu #userMenu="matMenu">
+        <div class="user-menu-header">
+          <div class="user-role">{{ user.role }}</div>
+          <div class="user-email">{{ user.email }}</div>
+        </div>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Logout</span>
+        </button>
+      </mat-menu>
+    }
+  </mat-toolbar>
+
+  <mat-sidenav-container class="sidenav-container">
+    <mat-sidenav #sidenav mode="side" opened class="sidenav">
+      <mat-nav-list>
+        <a mat-list-item routerLink="/dashboard/documents" routerLinkActive="active">
+          <mat-icon matListItemIcon>description</mat-icon>
+          <span matListItemTitle>Documents</span>
+        </a>
+
+        @if (!isReviewer()) {
+          <a mat-list-item routerLink="/dashboard/documents/new" routerLinkActive="active">
+            <mat-icon matListItemIcon>add</mat-icon>
+            <span matListItemTitle>Create New</span>
+          </a>
+        }
+      </mat-nav-list>
+    </mat-sidenav>
+
+    <mat-sidenav-content class="content">
+      <router-outlet></router-outlet>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

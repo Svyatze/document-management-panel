@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -10,7 +10,6 @@ import { MatCardModule } from '@angular/material/card';
   imports: [
     CommonModule,
     RouterOutlet,
-    RouterLink,
     MatTabsModule,
     MatCardModule
   ],

@@ -1,0 +1,66 @@
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+
+.toolbar-title {
+  margin-left: 8px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.username {
+  margin-left: 8px;
+}
+
+.user-menu-header {
+  padding: 8px 16px;
+
+  .user-role {
+    font-weight: bold;
+  }
+
+  .user-email {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+}
+
+.sidenav-container {
+  flex: 1;
+  margin-top: 64px;
+}
+
+.sidenav {
+  width: 240px;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.content {
+  padding: 20px;
+}
+
+.active {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 600px) {
+  .sidenav-container {
+    margin-top: 56px;
+  }
+
+  .username {
+    display: none;
+  }
+}

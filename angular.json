@@ -29,6 +29,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/pspdfkit/dist/",
+                "output": "assets/pspdfkit/"
               }
             ],
             "styles": [
@@ -89,6 +94,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/pspdfkit/dist/",
+                "output": "assets/pspdfkit/"
               }
             ],
             "styles": [
