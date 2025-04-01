@@ -4,7 +4,7 @@ export enum DocumentStatus {
   IN_REVIEW = 'IN_REVIEW',
   APPROVED = 'APPROVED',
   REJECTED = 'REJECTED',
-  WITHDRAWN = 'WITHDRAWN'
+  REVOKED = 'REVOKED'
 }
 
 export interface Creator {

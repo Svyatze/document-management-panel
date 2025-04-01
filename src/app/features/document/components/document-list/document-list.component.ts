@@ -80,7 +80,7 @@ export class DocumentListComponent implements OnInit {
     { value: DocumentStatus.IN_REVIEW, viewValue: 'In Review' },
     { value: DocumentStatus.APPROVED, viewValue: 'Approved' },
     { value: DocumentStatus.REJECTED, viewValue: 'Rejected' },
-    { value: DocumentStatus.WITHDRAWN, viewValue: 'Withdrawn' }
+    { value: DocumentStatus.REVOKED, viewValue: 'Revoked' }
   ];
 
   ngOnInit(): void {
@@ -132,11 +132,11 @@ export class DocumentListComponent implements OnInit {
     });
   }
 
-  public withdrawDocument(document: DocumentModel): void {
+  public revokeDocument(document: DocumentModel): void {
     this.dialogService.confirm({
-      title: 'Withdraw Document',
-      message: `Are you sure you want to withdraw "${document.name}" from review?`,
-      confirmText: 'Withdraw',
+      title: 'Revoke Document',
+      message: `Are you sure you want to revoke "${document.name}" from review?`,
+      confirmText: 'Revoke',
       cancelText: 'Cancel'
     }).subscribe(confirmed => {
       if (confirmed) {
@@ -144,16 +144,16 @@ export class DocumentListComponent implements OnInit {
 
         this.documentService.updateDocument({
           id: document.id!,
-          status: DocumentStatus.WITHDRAWN
+          status: DocumentStatus.REVOKED
         }).subscribe({
           next: () => {
-            this.notification.success('Document withdrawn successfully');
+            this.notification.success('Document revoked successfully');
             this.loadDocuments();
           },
           error: (error) => {
-            console.error('Error withdrawing document:', error);
+            console.error('Error revoking document:', error);
 
-            this.notification.error('Failed to withdraw document');
+            this.notification.error('Failed to revoke document');
             this.loading.set(false);
           }
         });
@@ -197,16 +197,16 @@ export class DocumentListComponent implements OnInit {
   public canEdit(document: DocumentModel): boolean {
     return !this.isReviewer() &&
       document.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.WITHDRAWN, DocumentStatus.REJECTED].includes(document.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED, DocumentStatus.REJECTED].includes(document.status as DocumentStatus);
   }
 
   public canDelete(document: DocumentModel): boolean {
     return !this.isReviewer() &&
       document.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.WITHDRAWN].includes(document.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED].includes(document.status as DocumentStatus);
   }
 
-  public canWithdraw(document: DocumentModel): boolean {
+  public canRevoke(document: DocumentModel): boolean {
     return !this.isReviewer() &&
       document.creator?.id === this.currentUser()?.id &&
       document.status === DocumentStatus.READY_FOR_REVIEW;
@@ -228,8 +228,8 @@ export class DocumentListComponent implements OnInit {
         return 'status-approved';
       case DocumentStatus.REJECTED:
         return 'status-rejected';
-      case DocumentStatus.WITHDRAWN:
-        return 'status-withdrawn';
+      case DocumentStatus.REVOKED:
+        return 'status-revoked';
       default:
         return '';
     }

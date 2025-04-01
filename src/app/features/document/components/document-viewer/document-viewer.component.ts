@@ -117,7 +117,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
     return !this.isReviewer() &&
       this.document()!.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.WITHDRAWN, DocumentStatus.REJECTED].includes(this.document()!.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED, DocumentStatus.REJECTED].includes(this.document()!.status as DocumentStatus);
   }
 
   public canDelete(): boolean {
@@ -125,10 +125,10 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
     return !this.isReviewer() &&
       this.document()!.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.WITHDRAWN].includes(this.document()!.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED].includes(this.document()!.status as DocumentStatus);
   }
 
-  public canWithdraw(): boolean {
+  public canRevoke(): boolean {
     if (!this.document()) return false;
 
     return !this.isReviewer() &&
@@ -175,6 +175,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
         },
         error: (error) => {
           console.error('Error deleting document:', error);
+
           this.error.set('Failed to delete document');
           this.loading.set(false);
         }
@@ -182,11 +183,11 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  public withdrawDocument(): void {
+  public revokeDocument(): void {
     if (!this.document()) return;
 
-    if (confirm(`Are you sure you want to withdraw "${this.document()!.name}" from review?`)) {
-      this.updateStatus(DocumentStatus.WITHDRAWN);
+    if (confirm(`Are you sure you want to revoke "${this.document()!.name}" from review?`)) {
+      this.updateStatus(DocumentStatus.REVOKED);
     }
   }
 
@@ -202,8 +203,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
         return 'status-approved';
       case DocumentStatus.REJECTED:
         return 'status-rejected';
-      case DocumentStatus.WITHDRAWN:
-        return 'status-withdrawn';
+      case DocumentStatus.REVOKED:
+        return 'status-revoked';
       default:
         return '';
     }

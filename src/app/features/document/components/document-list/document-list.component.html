@@ -104,8 +104,8 @@
                   </button>
                 }
 
-                @if (canWithdraw(document)) {
-                  <button mat-menu-item (click)="withdrawDocument(document)">
+                @if (canRevoke(document)) {
+                  <button mat-menu-item (click)="revokeDocument(document)">
                     <mat-icon>undo</mat-icon>
                     <span>Withdraw</span>
                   </button>
