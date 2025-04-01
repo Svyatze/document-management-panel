@@ -1,0 +1,63 @@
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Full Name</mat-label>
+    <input matInput formControlName="fullName" placeholder="Enter your full name">
+
+    @if (registerForm.get('fullName')?.touched && registerForm.get('fullName')?.hasError('required')) {
+      <mat-error>Full name is required</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Email</mat-label>
+    <input matInput formControlName="email" type="email" placeholder="Enter your email">
+
+    @if (registerForm.get('email')?.touched) {
+      @if (registerForm.get('email')?.hasError('required')) {
+        <mat-error>Email is required</mat-error>
+      } @else if (registerForm.get('email')?.hasError('email')) {
+        <mat-error>Please enter a valid email</mat-error>
+      }
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Password</mat-label>
+    <input matInput formControlName="password" type="password" placeholder="Enter your password">
+
+    @if (registerForm.get('password')?.touched) {
+      @if (registerForm.get('password')?.hasError('required')) {
+        <mat-error>Password is required</mat-error>
+      } @else if (registerForm.get('password')?.hasError('minlength')) {
+        <mat-error>Password must be at least 6 characters</mat-error>
+      }
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Role</mat-label>
+    <mat-select formControlName="role">
+      @for (role of roles; track role.value) {
+        <mat-option [value]="role.value">{{ role.viewValue }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (registerError) {
+    <div class="error-message">{{ registerError }}</div>
+  }
+
+  <button
+    mat-raised-button
+    color="primary"
+    type="submit"
+    class="full-width"
+    [disabled]="registerForm.invalid || isLoading">
+
+    @if (isLoading) {
+      <mat-spinner diameter="24"></mat-spinner>
+    } @else {
+      Register
+    }
+  </button>
+</form>

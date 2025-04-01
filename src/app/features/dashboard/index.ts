@@ -1,0 +1,1 @@
+export { DashboardHomeComponent } from './components';
