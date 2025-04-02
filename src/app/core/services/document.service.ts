@@ -9,7 +9,8 @@ import {
   DocumentCreateRequest,
   DocumentListRequest,
   DocumentListResponse,
-  DocumentUpdateRequest
+  DocumentUpdateRequest,
+  DocumentStatus
 } from '../../models';
 
 @Injectable({
@@ -68,9 +69,26 @@ export class DocumentService {
   }
 
   public updateDocument(request: DocumentUpdateRequest): Observable<DocumentModel> {
-    return this.http.patch<DocumentModel>(`${this.apiUrl}/${request.id}`, {
-      name: request.name,
-      status: request.status
+    const updateData: any = {};
+
+    if (request.name !== undefined) {
+      updateData.name = request.name;
+    }
+
+    return this.http.patch<DocumentModel>(`${this.apiUrl}/${request.id}`, updateData);
+  }
+
+  public sendToReview(documentId: string): Observable<DocumentModel> {
+    return this.http.post<DocumentModel>(`${this.apiUrl}/${documentId}/send-to-review`, {});
+  }
+
+  public revokeReview(documentId: string): Observable<DocumentModel> {
+    return this.http.post<DocumentModel>(`${this.apiUrl}/${documentId}/revoke-review`, {});
+  }
+
+  public changeStatus(documentId: string, status: DocumentStatus): Observable<DocumentModel> {
+    return this.http.post<DocumentModel>(`${this.apiUrl}/${documentId}/change-status`, {
+      status: status
     });
   }
 

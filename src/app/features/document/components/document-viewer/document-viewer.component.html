@@ -67,7 +67,7 @@
           @if (document()!.updatedAt) {
             <div class="metadata-item">
               <mat-icon>update</mat-icon>
-              <span>Last updated: {{ document()!.updatedAt | date:'medium' }}</span>
+              <span>Last updated: {{ document()!.updatedAt | date:'MMM d, y, h:mm a' }}</span>
             </div>
           }
         </div>
@@ -78,23 +78,23 @@
             <div class="status-buttons">
               <button
                 mat-raised-button
-                [disabled]="document()!.status === DocumentStatus.UNDER_REVIEW"
+                [disabled]="!canChangeToUnderReview()"
                 (click)="updateStatus(DocumentStatus.UNDER_REVIEW)">
-                Mark as In Review
+                Mark as Under Review
               </button>
               <button
                 mat-raised-button
                 color="primary"
-                [disabled]="document()!.status === DocumentStatus.APPROVED"
+                [disabled]="!canApproveDocument()"
                 (click)="updateStatus(DocumentStatus.APPROVED)">
                 Approve
               </button>
               <button
                 mat-raised-button
                 color="warn"
-                [disabled]="document()!.status === DocumentStatus.DECLINED"
+                [disabled]="!canDeclineDocument()"
                 (click)="updateStatus(DocumentStatus.DECLINED)">
-                Reject
+                Decline
               </button>
             </div>
           </div>

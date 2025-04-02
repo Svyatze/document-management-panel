@@ -10,6 +10,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { of, switchMap } from 'rxjs';
 
 import { DocumentService, NotificationService } from '../../../../core/services';
 import { DialogService } from '../../../../shared/services';
@@ -50,7 +51,7 @@ export class DocumentFormComponent implements OnInit {
   public errorMessage = signal<string | null>(null);
   public DocumentStatus = DocumentStatus;
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.initForm();
 
     const documentId = this.route.snapshot.paramMap.get('id');
@@ -132,11 +133,19 @@ export class DocumentFormComponent implements OnInit {
       if (confirmed) {
         this.loading.set(true);
 
-        this.documentService.updateDocument({
-          id: this.currentDocument()!.id!,
-          name: this.documentForm.get('name')?.value,
-          status: DocumentStatus.READY_FOR_REVIEW
-        }).subscribe({
+        const currentName = this.documentForm.get('name')?.value;
+        const hasNameChanged = currentName !== this.currentDocument()!.name;
+
+        const saveChanges$ = hasNameChanged ?
+          this.documentService.updateDocument({
+            id: this.currentDocument()!.id!,
+            name: currentName
+          }) :
+          of(this.currentDocument());
+
+        saveChanges$.pipe(
+          switchMap(doc => this.documentService.sendToReview(doc!.id!))
+        ).subscribe({
           next: () => {
             this.notification.success('Document submitted for review');
 
@@ -160,23 +169,36 @@ export class DocumentFormComponent implements OnInit {
       return;
     }
 
-    const status = asDraft ? DocumentStatus.DRAFT : DocumentStatus.READY_FOR_REVIEW;
     const name = this.documentForm.get('name')?.value;
 
     this.documentService.createDocument({
       name,
-      status,
+      status: DocumentStatus.DRAFT,
       file: this.selectedFile()!
     }).subscribe({
-      next: () => {
-        const message = asDraft
-          ? 'Document saved as draft'
-          : 'Document submitted for review';
-        this.notification.success(message);
-        this.router.navigate(['/dashboard/documents']);
+      next: (document) => {
+        if (!asDraft) {
+          this.documentService.sendToReview(document.id!).subscribe({
+            next: () => {
+              this.notification.success('Document submitted for review');
+
+              void this.router.navigate(['/dashboard/documents']);
+            },
+            error: (error) => {
+              console.error('Error submitting document for review:', error);
+
+              this.notification.error('Document created but could not be submitted for review');
+              void this.router.navigate(['/dashboard/documents']);
+            }
+          });
+        } else {
+          this.notification.success('Document saved as draft');
+          void this.router.navigate(['/dashboard/documents']);
+        }
       },
       error: (error) => {
         console.error('Error creating document:', error);
+
         this.errorMessage.set('Failed to create document');
         this.loading.set(false);
       }

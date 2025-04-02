@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, inject, signal, computed } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  ElementRef,
+  ViewChild,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -25,7 +35,7 @@ import {DocumentModel, DocumentStatus, UserRole} from '../../../../models';
     MatProgressSpinnerModule,
     MatChipsModule,
     MatDividerModule,
-    MatMenuModule
+    MatMenuModule,
   ],
   templateUrl: './document-viewer.component.html',
   styleUrl: './document-viewer.component.scss'
@@ -77,6 +87,26 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
     return this.isReviewer() && this.document()!.status !== DocumentStatus.DRAFT;
   });
+
+  public canChangeToUnderReview = computed(() => {
+    if (!this.document()) return false;
+
+    return this.isReviewer() && this.document()!.status === DocumentStatus.READY_FOR_REVIEW;
+  });
+
+  public canApproveDocument = computed(() => {
+    if (!this.document()) return false;
+
+    return this.isReviewer() && this.document()!.status === DocumentStatus.UNDER_REVIEW;
+  });
+
+  public canDeclineDocument = computed(() => {
+    if (!this.document()) return false;
+
+    return this.isReviewer() && this.document()!.status === DocumentStatus.UNDER_REVIEW;
+  });
+
+
 
   ngOnInit(): void {
     this.documentId = this.route.snapshot.paramMap.get('id');
@@ -183,7 +213,21 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       cancelText: 'Cancel'
     }).subscribe(confirmed => {
       if (confirmed) {
-        this.updateStatus(DocumentStatus.REVOKE);
+        this.loading.set(true);
+
+        this.documentService.revokeReview(this.document()!.id!).subscribe({
+          next: (updatedDocument) => {
+            this.document.set(updatedDocument);
+            this.notification.success('Document revoked successfully');
+            this.loading.set(false);
+          },
+          error: (error) => {
+            console.error('Error revoking document:', error);
+
+            this.error.set('Failed to revoke document');
+            this.loading.set(false);
+          }
+        });
       }
     });
   }
@@ -193,13 +237,26 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.loading.set(true);
 
-    this.documentService.updateDocument({
-      id: this.document()!.id!,
-      status: status
-    }).subscribe({
+    this.documentService.changeStatus(this.document()!.id!, status).subscribe({
       next: (updatedDocument) => {
         this.document.set(updatedDocument);
-        this.notification.success(`Document status updated successfully`);
+
+        let statusMessage = '';
+        switch (status) {
+          case DocumentStatus.UNDER_REVIEW:
+            statusMessage = 'under review';
+            break;
+          case DocumentStatus.APPROVED:
+            statusMessage = 'approved';
+            break;
+          case DocumentStatus.DECLINED:
+            statusMessage = 'declined';
+            break;
+          default:
+            statusMessage = 'updated';
+        }
+
+        this.notification.success(`Document status set to ${statusMessage}`);
         this.loading.set(false);
       },
       error: (error) => {
