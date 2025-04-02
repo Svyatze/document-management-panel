@@ -8,9 +8,12 @@ import {
   inject,
   signal,
   computed,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,9 +22,9 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 
-import {AuthService, DocumentService, NotificationService, PdfViewerService} from '../../../../core/services';
+import { AuthService, DocumentService, NotificationService, PdfViewerService } from '../../../../core/services';
 import { DialogService } from '../../../../shared/services';
-import {DocumentModel, DocumentStatus, UserRole} from '../../../../models';
+import { DocumentModel, DocumentStatus, UserRole } from '../../../../models';
 
 @Component({
   selector: 'app-document-viewer',
@@ -50,6 +53,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
   private dialogService = inject(DialogService);
+  private destroyRef = inject(DestroyRef);
 
   public document = signal<DocumentModel | null>(null);
   public loading = signal(true);
@@ -131,7 +135,9 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   private loadDocument(id: string): void {
-    this.documentService.getDocumentById(id).subscribe({
+    this.documentService.getDocumentById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (document) => {
         this.document.set(document);
         this.loading.set(false);
@@ -158,7 +164,9 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     this.pdfViewerService.loadDocument(
       this.pdfContainer.nativeElement,
       this.document()!.fileUrl
-    ).subscribe({
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.loading.set(false);
       },
@@ -172,7 +180,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
   public editDocument(): void {
     if (!this.document()) return;
-    this.router.navigate(['/dashboard/documents', this.document()!.id, 'edit']);
+
+    void this.router.navigate(['/dashboard/documents', this.document()!.id, 'edit']);
   }
 
   public deleteDocument(): void {
@@ -184,11 +193,15 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       confirmText: 'Delete',
       cancelText: 'Cancel',
       color: 'warn'
-    }).subscribe(confirmed => {
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
       if (confirmed) {
         this.loading.set(true);
 
-        this.documentService.deleteDocument(this.document()!.id!).subscribe({
+        this.documentService.deleteDocument(this.document()!.id!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
           next: () => {
             this.notification.success('Document deleted successfully');
             this.router.navigate(['/dashboard/documents']);
@@ -211,11 +224,15 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       message: `Are you sure you want to revoke "${this.document()!.name}" from review?`,
       confirmText: 'Revoke',
       cancelText: 'Cancel'
-    }).subscribe(confirmed => {
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
       if (confirmed) {
         this.loading.set(true);
 
-        this.documentService.revokeReview(this.document()!.id!).subscribe({
+        this.documentService.revokeReview(this.document()!.id!)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
           next: (updatedDocument) => {
             this.document.set(updatedDocument);
             this.notification.success('Document revoked successfully');
@@ -237,7 +254,9 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
     this.loading.set(true);
 
-    this.documentService.changeStatus(this.document()!.id!, status).subscribe({
+    this.documentService.changeStatus(this.document()!.id!, status)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (updatedDocument) => {
         this.document.set(updatedDocument);
 

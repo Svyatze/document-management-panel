@@ -1,7 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { MatTableModule } from '@angular/material/table';
 import { MatSortModule, Sort } from '@angular/material/sort';
@@ -50,6 +51,7 @@ export class DocumentListComponent implements OnInit {
   private userService = inject(UserService);
   private authService = inject(AuthService);
   private notification = inject(NotificationService);
+  private destroyRef = inject(DestroyRef);
 
   public documents = this.documentService.documents;
   public totalCount = this.documentService.totalCount;
@@ -60,7 +62,7 @@ export class DocumentListComponent implements OnInit {
   public pageSize = signal(20);
   public sortField = signal<string | null>(null);
   public sortDirection = signal<'asc' | 'desc'>('asc');
-  public creatorEmail = signal<string | null>(null);
+  public creator = signal<string | null>(null);
 
   public creatorFilterControl = new FormControl('');
   public users = signal<User[]>([]);
@@ -114,6 +116,7 @@ export class DocumentListComponent implements OnInit {
 
   private setupCreatorFilter(): void {
     this.creatorFilterControl.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef),
       debounceTime(300),
       distinctUntilChanged()
     ).subscribe(value => {
@@ -132,15 +135,15 @@ export class DocumentListComponent implements OnInit {
   }
 
   public onUserSelected(user: User): void {
-    this.creatorEmail.set(user.email);
-    this.creatorFilterControl.setValue(user.email);
+    this.creator.set(user.fullName);
+    this.creatorFilterControl.setValue(user.fullName);
     this.currentPage.set(1);
     this.loadDocuments();
   }
 
   public clearCreatorFilter(): void {
     this.creatorFilterControl.setValue('');
-    this.creatorEmail.set(null);
+    this.creator.set(null);
     this.loadDocuments();
   }
 
@@ -174,7 +177,9 @@ export class DocumentListComponent implements OnInit {
     this.userService.getUsers({
       page: 1,
       size: 100
-    }).subscribe({
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (response) => {
         this.users.set(response.results);
         this.filteredUsers.set(response.results.slice(0, 10));
@@ -200,15 +205,17 @@ export class DocumentListComponent implements OnInit {
       request.status = this.currentStatus()!;
     }
 
-    if (this.creatorEmail() && this.isReviewer()) {
-      request.creatorEmail = this.creatorEmail()!;
+    if (this.creator() && this.isReviewer()) {
+      request.creatorEmail = this.creator()!;
     }
 
     if (this.sortField() && this.sortDirection()) {
       request.sort = `${this.sortField()},${this.sortDirection()}`;
     }
 
-    this.documentService.getDocuments(request).subscribe({
+    this.documentService.getDocuments(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.loading.set(false);
       },

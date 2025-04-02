@@ -37,7 +37,7 @@
                 }
               }
             </mat-autocomplete>
-            @if (creatorEmail()) {
+            @if (creator()) {
               <button matSuffix mat-icon-button aria-label="Clear" (click)="clearCreatorFilter()">
                 <mat-icon>close</mat-icon>
               </button>
@@ -55,11 +55,11 @@
         }
       </div>
 
-      @if (creatorEmail()) {
+      @if (creator()) {
         <div class="active-filters">
-          <span class="filter-label">Active filters:</span>
+          <span class="filter-label">Creator:</span>
           <mat-chip color="primary" removable (removed)="clearCreatorFilter()">
-            Creator: {{ creatorEmail() }}
+            {{ creator() }}
             <mat-icon matChipRemove>cancel</mat-icon>
           </mat-chip>
         </div>
@@ -75,7 +75,7 @@
         <mat-icon class="empty-icon">description_off</mat-icon>
         <h3>No documents found</h3>
         <p>
-          @if (currentStatus() || creatorEmail()) {
+          @if (currentStatus() || creator()) {
             Try changing the filters or create a new document.
           } @else {
             @if (isReviewer()) {

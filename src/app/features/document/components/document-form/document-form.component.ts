@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { of, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { DocumentService, NotificationService } from '../../../../core/services';
 import { DialogService } from '../../../../shared/services';
@@ -42,6 +43,7 @@ export class DocumentFormComponent implements OnInit {
   private router = inject(Router);
   private notification = inject(NotificationService);
   private dialogService = inject(DialogService);
+  private destroyRef = inject(DestroyRef);
 
   public documentForm!: FormGroup;
   public isEditMode = signal(false);
@@ -71,7 +73,9 @@ export class DocumentFormComponent implements OnInit {
   private loadDocument(id: string): void {
     this.loading.set(true);
 
-    this.documentService.getDocumentById(id).subscribe({
+    this.documentService.getDocumentById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (document) => {
         this.currentDocument.set(document);
         this.documentForm.patchValue({
@@ -129,7 +133,9 @@ export class DocumentFormComponent implements OnInit {
       message: 'Are you sure you want to submit this document for review?',
       confirmText: 'Submit',
       cancelText: 'Cancel'
-    }).subscribe(confirmed => {
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(confirmed => {
       if (confirmed) {
         this.loading.set(true);
 
@@ -144,6 +150,7 @@ export class DocumentFormComponent implements OnInit {
           of(this.currentDocument());
 
         saveChanges$.pipe(
+          takeUntilDestroyed(this.destroyRef),
           switchMap(doc => this.documentService.sendToReview(doc!.id!))
         ).subscribe({
           next: () => {
@@ -175,10 +182,14 @@ export class DocumentFormComponent implements OnInit {
       name,
       status: DocumentStatus.DRAFT,
       file: this.selectedFile()!
-    }).subscribe({
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: (document) => {
         if (!asDraft) {
-          this.documentService.sendToReview(document.id!).subscribe({
+          this.documentService.sendToReview(document.id!)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe({
             next: () => {
               this.notification.success('Document submitted for review');
 
@@ -215,7 +226,9 @@ export class DocumentFormComponent implements OnInit {
     this.documentService.updateDocument({
       id: this.currentDocument()!.id!,
       name
-    }).subscribe({
+    })
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
       next: () => {
         this.notification.success('Document updated successfully');
 

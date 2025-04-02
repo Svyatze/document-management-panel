@@ -21,6 +21,7 @@ export class AuthContainerComponent {
 
   public navigateToTab(tabIndex: number): void {
     const route = tabIndex === 0 ? '/auth/login' : '/auth/register';
+
     void this.router.navigate([route]);
   }
 

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -62,6 +63,7 @@ export class LoginComponent {
           error: (error) => {
             this.isLoading = false;
             this.loginError = 'Failed to load user information';
+
             console.error(error);
           }
         });
@@ -69,6 +71,7 @@ export class LoginComponent {
       error: (error) => {
         this.isLoading = false;
         this.loginError = 'Invalid email or password';
+
         console.error(error);
       }
     });
