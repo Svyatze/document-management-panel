@@ -78,8 +78,8 @@
             <div class="status-buttons">
               <button
                 mat-raised-button
-                [disabled]="document()!.status === DocumentStatus.IN_REVIEW"
-                (click)="updateStatus(DocumentStatus.IN_REVIEW)">
+                [disabled]="document()!.status === DocumentStatus.UNDER_REVIEW"
+                (click)="updateStatus(DocumentStatus.UNDER_REVIEW)">
                 Mark as In Review
               </button>
               <button
@@ -92,8 +92,8 @@
               <button
                 mat-raised-button
                 color="warn"
-                [disabled]="document()!.status === DocumentStatus.REJECTED"
-                (click)="updateStatus(DocumentStatus.REJECTED)">
+                [disabled]="document()!.status === DocumentStatus.DECLINED"
+                (click)="updateStatus(DocumentStatus.DECLINED)">
                 Reject
               </button>
             </div>

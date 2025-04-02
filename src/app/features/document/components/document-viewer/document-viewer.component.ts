@@ -55,14 +55,14 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     if (!this.document() || !this.currentUser()) return false;
 
     return !this.isReviewer() &&
-      [DocumentStatus.DRAFT, DocumentStatus.REVOKED, DocumentStatus.REJECTED].includes(this.document()!.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKE, DocumentStatus.DECLINED].includes(this.document()!.status as DocumentStatus);
   });
 
   public canDeleteDocument = computed(() => {
     if (!this.document() || !this.currentUser()) return false;
 
     return !this.isReviewer() &&
-      [DocumentStatus.DRAFT, DocumentStatus.REVOKED].includes(this.document()!.status as DocumentStatus);
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKE].includes(this.document()!.status as DocumentStatus);
   });
 
   public canRevokeDocument = computed(() => {
@@ -183,7 +183,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       cancelText: 'Cancel'
     }).subscribe(confirmed => {
       if (confirmed) {
-        this.updateStatus(DocumentStatus.REVOKED);
+        this.updateStatus(DocumentStatus.REVOKE);
       }
     });
   }
@@ -216,13 +216,13 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
         return 'status-draft';
       case DocumentStatus.READY_FOR_REVIEW:
         return 'status-ready_for_review';
-      case DocumentStatus.IN_REVIEW:
+      case DocumentStatus.UNDER_REVIEW:
         return 'status-in_review';
       case DocumentStatus.APPROVED:
         return 'status-approved';
-      case DocumentStatus.REJECTED:
+      case DocumentStatus.DECLINED:
         return 'status-rejected';
-      case DocumentStatus.REVOKED:
+      case DocumentStatus.REVOKE:
         return 'status-revoke';
       default:
         return '';

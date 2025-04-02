@@ -1,4 +1,3 @@
-<!-- features/document/document-list/document-list.component.html -->
 <mat-card>
   <mat-card-header>
     <mat-card-title>Documents</mat-card-title>
@@ -46,21 +45,18 @@
     } @else {
       <div class="table-container">
         <table mat-table [dataSource]="documents()" matSort (matSortChange)="onSortChange($event)">
-          <!-- Name Column -->
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>File</th>
             <td mat-cell *matCellDef="let document">
-              <a [routerLink]="['/dashboard/documents', document.id, 'view']">{{ document.name }}</a>
+              <a [routerLink]="['/dashboard/documents', document.id, 'view']" class="document-link">{{ document.name }}</a>
             </td>
           </ng-container>
 
-          <!-- Creator Column (Only for Reviewer) -->
           <ng-container matColumnDef="creator">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Creator</th>
             <td mat-cell *matCellDef="let document">{{ document.creator?.fullName }}</td>
           </ng-container>
 
-          <!-- Status Column -->
           <ng-container matColumnDef="status">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
             <td mat-cell *matCellDef="let document">
@@ -70,66 +66,9 @@
             </td>
           </ng-container>
 
-          <!-- Updated At Column -->
           <ng-container matColumnDef="updatedAt">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Updated at</th>
             <td mat-cell *matCellDef="let document">{{ document.updatedAt | date:'medium' }}</td>
-          </ng-container>
-
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let document">
-              <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Actions">
-                <mat-icon>more_vert</mat-icon>
-              </button>
-
-              <mat-menu #menu="matMenu">
-                <button mat-menu-item [routerLink]="['/dashboard/documents', document.id, 'view']">
-                  <mat-icon>visibility</mat-icon>
-                  <span>View</span>
-                </button>
-
-                @if (canEdit(document)) {
-                  <button mat-menu-item [routerLink]="['/dashboard/documents', document.id, 'edit']">
-                    <mat-icon>edit</mat-icon>
-                    <span>Edit</span>
-                  </button>
-                }
-
-                @if (canDelete(document)) {
-                  <button mat-menu-item (click)="deleteDocument(document)">
-                    <mat-icon color="warn">delete</mat-icon>
-                    <span>Delete</span>
-                  </button>
-                }
-
-                @if (canRevoke(document)) {
-                  <button mat-menu-item (click)="revokeDocument(document)">
-                    <mat-icon>undo</mat-icon>
-                    <span>Revoke</span>
-                  </button>
-                }
-
-                @if (canChangeStatus(document)) {
-                  <mat-divider></mat-divider>
-                  <button mat-menu-item [disabled]="document.status === DocumentStatus.IN_REVIEW"
-                          (click)="updateStatus(document, DocumentStatus.IN_REVIEW)">
-                    <mat-icon>pending_actions</mat-icon>
-                    <span>Mark as In Review</span>
-                  </button>
-                  <button mat-menu-item [disabled]="document.status === DocumentStatus.APPROVED"
-                          (click)="updateStatus(document, DocumentStatus.APPROVED)">
-                    <mat-icon color="primary">check_circle</mat-icon>
-                    <span>Approve</span>
-                  </button>
-                  <button mat-menu-item [disabled]="document.status === DocumentStatus.REJECTED"
-                          (click)="updateStatus(document, DocumentStatus.REJECTED)">
-                    <mat-icon color="warn">cancel</mat-icon>
-                    <span>Reject</span>
-                  </button>
-                }
-              </mat-menu>
-            </td>
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
@@ -139,10 +78,9 @@
         <mat-paginator
           [length]="totalCount()"
           [pageSize]="pageSize()"
-          [pageSizeOptions]="[5, 10, 25, 50]"
-          [pageIndex]="currentPage()"
+          [pageIndex]="pageIndex()"
           (page)="onPageChange($event)"
-          showFirstLastButtons>
+          [hidePageSize]="true">
         </mat-paginator>
       </div>
     }

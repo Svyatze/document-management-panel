@@ -1,10 +1,10 @@
 export enum DocumentStatus {
   DRAFT = 'DRAFT',
+  REVOKE = 'REVOKE',
   READY_FOR_REVIEW = 'READY_FOR_REVIEW',
-  IN_REVIEW = 'IN_REVIEW',
+  UNDER_REVIEW = 'UNDER_REVIEW',
   APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  REVOKED = 'REVOKED'
+  DECLINED = 'DECLINED'
 }
 
 export interface Creator {
