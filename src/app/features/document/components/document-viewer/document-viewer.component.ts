@@ -1,16 +1,17 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, inject, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatMenuModule } from '@angular/material/menu';
 
-import {AuthService, DocumentService, PdfViewerService} from '../../../../core/services';
-import { DocumentModel, UserRole, DocumentStatus } from '../../../../models';
+import {AuthService, DocumentService, NotificationService, PdfViewerService} from '../../../../core/services';
+import { DialogService } from '../../../../shared/services';
+import {DocumentModel, DocumentStatus, UserRole} from '../../../../models';
 
 @Component({
   selector: 'app-document-viewer',
@@ -23,7 +24,8 @@ import { DocumentModel, UserRole, DocumentStatus } from '../../../../models';
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MatMenuModule
   ],
   templateUrl: './document-viewer.component.html',
   styleUrl: './document-viewer.component.scss'
@@ -36,6 +38,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private notification = inject(NotificationService);
+  private dialogService = inject(DialogService);
 
   public document = signal<DocumentModel | null>(null);
   public loading = signal(true);
@@ -43,13 +47,38 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
   public documentId: string | null = null;
 
   public currentUser = this.authService.currentUser;
-  public isReviewer = signal(false);
+  public isReviewer = computed(() => this.currentUser()?.role === UserRole.REVIEWER);
 
   public DocumentStatus = DocumentStatus;
 
-  public ngOnInit(): void {
-    this.isReviewer.set(this.currentUser()?.role === UserRole.REVIEWER);
+  public canEditDocument = computed(() => {
+    if (!this.document() || !this.currentUser()) return false;
 
+    return !this.isReviewer() &&
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED, DocumentStatus.REJECTED].includes(this.document()!.status as DocumentStatus);
+  });
+
+  public canDeleteDocument = computed(() => {
+    if (!this.document() || !this.currentUser()) return false;
+
+    return !this.isReviewer() &&
+      [DocumentStatus.DRAFT, DocumentStatus.REVOKED].includes(this.document()!.status as DocumentStatus);
+  });
+
+  public canRevokeDocument = computed(() => {
+    if (!this.document() || !this.currentUser()) return false;
+
+    return !this.isReviewer() &&
+      this.document()!.status === DocumentStatus.READY_FOR_REVIEW;
+  });
+
+  public canChangeDocumentStatus = computed(() => {
+    if (!this.document()) return false;
+
+    return this.isReviewer() && this.document()!.status !== DocumentStatus.DRAFT;
+  });
+
+  ngOnInit(): void {
     this.documentId = this.route.snapshot.paramMap.get('id');
     if (this.documentId) {
       this.loadDocument(this.documentId);
@@ -59,7 +88,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  public ngAfterViewInit(): void {
+  ngAfterViewInit(): void {
     setTimeout(() => {
       if (this.document() && this.pdfContainer) {
         this.initPSPDFKit();
@@ -67,7 +96,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  public ngOnDestroy(): void {
+  ngOnDestroy(): void {
     this.pdfViewerService.unloadDocument();
   }
 
@@ -105,41 +134,58 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       },
       error: (error) => {
         console.error('Error initializing PSPDFKit:', error);
-
         this.error.set('Failed to load PDF viewer');
         this.loading.set(false);
       }
     });
   }
 
-  public canEdit(): boolean {
-    if (!this.document()) return false;
-
-    return !this.isReviewer() &&
-      this.document()!.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.REVOKED, DocumentStatus.REJECTED].includes(this.document()!.status as DocumentStatus);
+  public editDocument(): void {
+    if (!this.document()) return;
+    this.router.navigate(['/dashboard/documents', this.document()!.id, 'edit']);
   }
 
-  public canDelete(): boolean {
-    if (!this.document()) return false;
+  public deleteDocument(): void {
+    if (!this.document()) return;
 
-    return !this.isReviewer() &&
-      this.document()!.creator?.id === this.currentUser()?.id &&
-      [DocumentStatus.DRAFT, DocumentStatus.REVOKED].includes(this.document()!.status as DocumentStatus);
+    this.dialogService.confirm({
+      title: 'Delete Document',
+      message: `Are you sure you want to delete "${this.document()!.name}"?`,
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      color: 'warn'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.loading.set(true);
+
+        this.documentService.deleteDocument(this.document()!.id!).subscribe({
+          next: () => {
+            this.notification.success('Document deleted successfully');
+            this.router.navigate(['/dashboard/documents']);
+          },
+          error: (error) => {
+            console.error('Error deleting document:', error);
+            this.error.set('Failed to delete document');
+            this.loading.set(false);
+          }
+        });
+      }
+    });
   }
 
-  public canRevoke(): boolean {
-    if (!this.document()) return false;
+  public revokeDocument(): void {
+    if (!this.document()) return;
 
-    return !this.isReviewer() &&
-      this.document()!.creator?.id === this.currentUser()?.id &&
-      this.document()!.status === DocumentStatus.READY_FOR_REVIEW;
-  }
-
-  public canChangeStatus(): boolean {
-    if (!this.document()) return false;
-
-    return this.isReviewer() && this.document()!.status !== DocumentStatus.DRAFT;
+    this.dialogService.confirm({
+      title: 'Revoke Document',
+      message: `Are you sure you want to revoke "${this.document()!.name}" from review?`,
+      confirmText: 'Revoke',
+      cancelText: 'Cancel'
+    }).subscribe(confirmed => {
+      if (confirmed) {
+        this.updateStatus(DocumentStatus.REVOKED);
+      }
+    });
   }
 
   public updateStatus(status: DocumentStatus): void {
@@ -153,6 +199,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     }).subscribe({
       next: (updatedDocument) => {
         this.document.set(updatedDocument);
+        this.notification.success(`Document status updated successfully`);
         this.loading.set(false);
       },
       error: (error) => {
@@ -163,48 +210,20 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  public deleteDocument(): void {
-    if (!this.document()) return;
-
-    if (confirm(`Are you sure you want to delete "${this.document()!.name}"?`)) {
-      this.loading.set(true);
-
-      this.documentService.deleteDocument(this.document()!.id!).subscribe({
-        next: () => {
-          void this.router.navigate(['/dashboard/documents']);
-        },
-        error: (error) => {
-          console.error('Error deleting document:', error);
-
-          this.error.set('Failed to delete document');
-          this.loading.set(false);
-        }
-      });
-    }
-  }
-
-  public revokeDocument(): void {
-    if (!this.document()) return;
-
-    if (confirm(`Are you sure you want to revoke "${this.document()!.name}" from review?`)) {
-      this.updateStatus(DocumentStatus.REVOKED);
-    }
-  }
-
   public getStatusClass(status: DocumentStatus): string {
     switch (status) {
       case DocumentStatus.DRAFT:
         return 'status-draft';
       case DocumentStatus.READY_FOR_REVIEW:
-        return 'status-pending';
+        return 'status-ready_for_review';
       case DocumentStatus.IN_REVIEW:
-        return 'status-review';
+        return 'status-in_review';
       case DocumentStatus.APPROVED:
         return 'status-approved';
       case DocumentStatus.REJECTED:
         return 'status-rejected';
       case DocumentStatus.REVOKED:
-        return 'status-revoked';
+        return 'status-revoke';
       default:
         return '';
     }

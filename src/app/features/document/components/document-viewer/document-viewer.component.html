@@ -20,24 +20,24 @@
           </a>
 
           @if (document()) {
-            @if (canEdit()) {
-              <a mat-button color="primary" [routerLink]="['/dashboard/documents', document()!.id, 'edit']">
+            @if (canEditDocument()) {
+              <button mat-button color="primary" (click)="editDocument()">
                 <mat-icon>edit</mat-icon>
                 Edit
-              </a>
+              </button>
             }
 
-            @if (canDelete()) {
+            @if (canDeleteDocument()) {
               <button mat-button color="warn" (click)="deleteDocument()">
                 <mat-icon>delete</mat-icon>
                 Delete
               </button>
             }
 
-            @if (canRevoke()) {
+            @if (canRevokeDocument()) {
               <button mat-button (click)="revokeDocument()">
                 <mat-icon>undo</mat-icon>
-                Withdraw
+                Revoke
               </button>
             }
           }
@@ -72,7 +72,7 @@
           }
         </div>
 
-        @if (canChangeStatus()) {
+        @if (canChangeDocumentStatus()) {
           <div class="status-actions">
             <h3>Change Status</h3>
             <div class="status-buttons">
