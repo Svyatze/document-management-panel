@@ -1,139 +1,152 @@
+@use "variables" as variables;
+
 :host ::ng-deep {
   .mat-mdc-card {
     box-shadow: none;
     background: #fff;
   }
-}
 
-.document-viewer-container {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 100px);
-}
+  .mat-mdc-raised-button:not(:disabled) {
+    background: variables.$primary-color;
+    color: variables.$white;
+    box-shadow: none;
 
-.document-details {
-  margin-bottom: 16px;
-}
-
-.document-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-
-    .actions {
-      margin-top: 16px;
+    &:hover {
+      transition: all 300ms ease-in-out;
+      background: variables.$regular-button-hover-bg
     }
   }
 }
 
-.document-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  h2 {
-    margin: 0 12px 0 0;
+  .document-viewer-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 100px);
   }
-}
 
-.pdf-container {
-  flex: 1;
-  min-height: 500px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.loading-container, .error-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  text-align: center;
-
-  mat-icon {
-    font-size: 48px;
-    height: 48px;
-    width: 48px;
+  .document-details {
     margin-bottom: 16px;
   }
-}
 
-.document-metadata {
-  margin-bottom: 16px;
+  .document-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
 
-  .metadata-item {
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .actions {
+        margin-top: 16px;
+      }
+    }
+  }
+
+  .document-title {
     display: flex;
     align-items: center;
-    margin-bottom: 8px;
+    justify-content: center;
+
+    h2 {
+      margin: 0 12px 0 0;
+    }
+  }
+
+  .pdf-container {
+    flex: 1;
+    min-height: 500px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .loading-container, .error-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+    text-align: center;
 
     mat-icon {
-      margin-right: 8px;
-      color: rgba(0, 0, 0, 0.54);
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      margin-bottom: 16px;
     }
   }
-}
 
-.status-actions {
-  margin-bottom: 16px;
+  .document-metadata {
+    margin-bottom: 16px;
 
-  h3 {
-    margin-bottom: 12px;
-  }
+    .metadata-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
 
-  .status-buttons {
-    display: flex;
-    gap: 12px;
-
-    @media (max-width: 600px) {
-      flex-direction: column;
+      mat-icon {
+        margin-right: 8px;
+        color: rgba(0, 0, 0, 0.54);
+      }
     }
   }
-}
 
-.divider {
-  margin: 16px 0;
-}
+  .status-actions {
+    margin-bottom: 16px;
 
-.status-chip {
-  padding: 4px 8px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 500;
+    h3 {
+      margin-bottom: 12px;
+    }
 
-  &.status-draft {
-    background-color: #e0e0e0;
-    color: #616161;
+    .status-buttons {
+      display: flex;
+      gap: 12px;
+
+      @media (max-width: 600px) {
+        flex-direction: column;
+      }
+    }
   }
 
-  &.status-pending {
-    background-color: #fff9c4;
-    color: #f57f17;
+  .divider {
+    margin: 16px 0;
   }
 
-  &.status-review {
-    background-color: #bbdefb;
-    color: #1565c0;
-  }
+  .status-chip {
+    padding: 4px 8px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 500;
 
-  &.status-approved {
-    background-color: #c8e6c9;
-    color: #2e7d32;
-  }
+    &.status-draft {
+      background-color: #e0e0e0;
+      color: #616161;
+    }
 
-  &.status-rejected {
-    background-color: #ffcdd2;
-    color: #c62828;
-  }
+    &.status-pending {
+      background-color: #fff9c4;
+      color: #f57f17;
+    }
 
-  &.status-revoked {
-    background-color: #f5f5f5;
-    color: #9e9e9e;
+    &.status-review {
+      background-color: #bbdefb;
+      color: #1565c0;
+    }
+
+    &.status-approved {
+      background-color: #c8e6c9;
+      color: #2e7d32;
+    }
+
+    &.status-rejected {
+      background-color: #ffcdd2;
+      color: #c62828;
+    }
+
+    &.status-revoked {
+      background-color: #f5f5f5;
+      color: #9e9e9e;
+    }
   }
-}
