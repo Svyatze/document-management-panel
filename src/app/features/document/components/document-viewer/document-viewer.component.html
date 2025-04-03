@@ -6,7 +6,7 @@
           @if (document()) {
             <h2>{{ document()!.name }}</h2>
             <span class="status-chip" [ngClass]="getStatusClass(document()!.status)">
-              {{ document()!.status }}
+              {{ document()!.status | documentStatus }}
             </span>
           } @else {
             <h2>Document</h2>

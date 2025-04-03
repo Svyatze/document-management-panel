@@ -26,6 +26,7 @@ import { AuthService, NotificationService, PdfViewerService } from '../../../../
 import { DialogService } from '../../../../shared/services';
 import { DocumentModel, DocumentStatus, UserRole } from '../../../../models';
 import { DocumentService } from '../../services';
+import { DocumentStatusPipe } from '../../../../shared/pipes';
 
 @Component({
   selector: 'app-document-viewer',
@@ -40,6 +41,7 @@ import { DocumentService } from '../../services';
     MatChipsModule,
     MatDividerModule,
     MatMenuModule,
+    DocumentStatusPipe,
   ],
   templateUrl: './document-viewer.component.html',
   styleUrl: './document-viewer.component.scss'

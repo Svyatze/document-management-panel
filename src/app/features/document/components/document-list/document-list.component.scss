@@ -122,6 +122,8 @@ mat-card-title {
   font-weight: 500;
   display: flex;
   justify-content: center;
+  text-align: center;
+  text-wrap: nowrap;
   min-width: 80px;
 
   &.status-draft {
