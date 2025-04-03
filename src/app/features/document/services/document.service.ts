@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { signal } from '@angular/core';
@@ -20,10 +20,10 @@ import {
 export class DocumentService {
   private apiUrl = `${environment.apiUrl}/document`;
 
+  private http = inject(HttpClient)
+
   public documents = signal<DocumentModel[]>([]);
   public totalCount = signal<number>(0);
-
-  constructor(private http: HttpClient) {}
 
   public getDocuments(request: DocumentListRequest): Observable<DocumentListResponse> {
     let params = new HttpParams()

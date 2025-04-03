@@ -138,7 +138,7 @@ export class DocumentListComponent implements OnInit {
   }
 
   public onUserSelected(user: User): void {
-    this.creator.set(user.fullName);
+    this.creator.set(user.email);
     this.creatorFilterControl.setValue(user.fullName);
     this.currentPage.set(1);
     this.loadDocuments();
