@@ -32,13 +32,6 @@
           <mat-icon matListItemIcon>description</mat-icon>
           <span matListItemTitle>Documents</span>
         </a>
-
-        @if (!isReviewer()) {
-          <a mat-list-item routerLink="/dashboard/documents/new" routerLinkActive="active">
-            <mat-icon matListItemIcon>add</mat-icon>
-            <span matListItemTitle>Create New</span>
-          </a>
-        }
       </mat-nav-list>
     </mat-sidenav>
 

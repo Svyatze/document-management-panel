@@ -1,3 +1,18 @@
+@use "variables" as variables;
+
+:host ::ng-deep {
+  .mat-mdc-raised-button:not(:disabled) {
+    background: variables.$primary-color !important;
+    color: variables.$white;
+    box-shadow: none;
+
+    &:hover {
+      transition: all 300ms ease-in-out;
+      background: variables.$regular-button-hover-bg
+    }
+  }
+}
+
 .login-form {
   display: flex;
   flex-direction: column;
@@ -9,7 +24,7 @@
 }
 
 .error-message {
-  color: #f44336;
+  color: variables.$error-toast-border;
   margin-bottom: 15px;
 }
 

@@ -1,3 +1,24 @@
+@use "variables" as variables;
+
+:host ::ng-deep {
+  .mat-mdc-list-item {
+    &:hover {
+      background: variables.$outlined-button-bg;
+    }
+
+    &.active {
+      background: variables.$outlined-button-bg;
+
+    }
+  }
+}
+
+::ng-deep .cdk-overlay-pane .mat-mdc-menu-panel {
+  background-color: variables.$outlined-button-bg !important;
+  min-width: 200px;
+}
+
+
 .dashboard-container {
   display: flex;
   flex-direction: column;
@@ -10,6 +31,7 @@
   left: 0;
   right: 0;
   z-index: 2;
+  background: variables.$main-bg;
 }
 
 .toolbar-title {
@@ -43,12 +65,14 @@
 }
 
 .sidenav {
+  padding: 0.5rem 1rem;
   width: 240px;
-  background: #f7f8fa;
+  background: #fff;
 }
 
 .content {
-  padding: 20px;
+  padding: 0 1rem;
+  background: variables.$main-bg;
 }
 
 .active {

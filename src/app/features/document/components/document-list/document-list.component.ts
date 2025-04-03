@@ -21,6 +21,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService, NotificationService, UserService } from '../../../../core/services';
 import { DocumentListRequest, DocumentStatus, User, UserRole } from '../../../../models';
 import {DocumentService} from '../../services';
+import {DocumentStatusPipe} from '../../../../shared/pipes';
 
 
 @Component({
@@ -42,7 +43,8 @@ import {DocumentService} from '../../services';
     MatAutocompleteModule,
     FormsModule,
     ReactiveFormsModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    DocumentStatusPipe
   ],
   templateUrl: './document-list.component.html',
   styleUrl: './document-list.component.scss'
@@ -222,6 +224,7 @@ export class DocumentListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading documents:', error);
+
         this.notification.error('Failed to load documents');
         this.loading.set(false);
       }

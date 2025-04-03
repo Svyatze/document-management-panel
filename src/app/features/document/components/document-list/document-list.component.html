@@ -45,25 +45,13 @@
           </mat-form-field>
         }
 
-        <div class="spacer"></div>
-
         @if (!isReviewer()) {
-          <button mat-raised-button color="primary" routerLink="/dashboard/documents/new">
+          <button class="add-document-button" mat-raised-button color="primary" routerLink="/dashboard/documents/new">
             <mat-icon>add</mat-icon>
             Add Document
           </button>
         }
       </div>
-
-      @if (creator()) {
-        <div class="active-filters">
-          <span class="filter-label">Creator:</span>
-          <mat-chip color="primary" removable (removed)="clearCreatorFilter()">
-            {{ creator() }}
-            <mat-icon matChipRemove>cancel</mat-icon>
-          </mat-chip>
-        </div>
-      }
     </div>
 
     @if (loading()) {
@@ -106,7 +94,7 @@
             <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
             <td mat-cell *matCellDef="let document">
               <span class="status-chip" [ngClass]="getStatusClass(document.status)">
-                {{ document.status }}
+                {{ document.status | documentStatus }}
               </span>
             </td>
           </ng-container>

@@ -1,0 +1,128 @@
+@use '@angular/material' as mat;
+@import 'palettes';
+
+// Main colors
+$primary-color: mat.m2-get-color-from-palette($primary-palette, 500);
+$secondary-color: mat.m2-get-color-from-palette($secondary-palette, 500);
+$neutral-light-color: mat.m2-get-color-from-palette($neutral-palette, 100);
+$neutral-dark-color: mat.m2-get-color-from-palette($neutral-palette, 900);
+$warning-color: mat.m2-get-color-from-palette($warning-palette, 500);
+$success-color: mat.m2-get-color-from-palette($success-palette, 500);
+$error-color: mat.m2-get-color-from-palette($error-palette, 500);
+$information-color: mat.m2-get-color-from-palette($information-palette, 500);
+
+// Colors
+$gradient-background: linear-gradient(90deg, $primary-color 0%, $secondary-color 100%);
+$gradient-background-radio: linear-gradient(90deg, $primary-color -9px, $secondary-color 29px);
+$gradient-border: linear-gradient(to right, $primary-color 0%, $secondary-color 100%) 1;
+$text-color: mat.m2-get-color-from-palette($primary-palette, 900);
+$secondary-text-color: mat.m2-get-color-from-palette($neutral-palette, 500);
+$regular-button-color: mat.m2-get-color-from-palette($neutral-palette, 10);
+$regular-button-hover-bg: mat.m2-get-color-from-palette($primary-palette, 400);
+$regular-button-active-bg: mat.m2-get-color-from-palette($primary-palette, 600);
+$grey-button-color: mat.m2-get-color-from-palette($neutral-palette, 500);
+$grey-button-bg: mat.m2-get-color-from-palette($neutral-palette, 100);
+$grey-button-hover-bg: mat.m2-get-color-from-palette($neutral-palette, 200);
+$grey-button-active-bg: mat.m2-get-color-from-palette($neutral-palette, 200);
+$regular-button-disabled-color: mat.m2-get-color-from-palette($neutral-palette, 100);
+$regular-button-disabled-bg: mat.m2-get-color-from-palette($neutral-palette, 300);
+$outlined-button-bg: mat.m2-get-color-from-palette($primary-palette, 50);
+$outlined-button-disabled-color: mat.m2-get-color-from-palette($neutral-palette, 400);
+$border-color: mat.m2-get-color-from-palette($neutral-palette, 200);
+$border-color-light: mat.m2-get-color-from-palette($neutral-palette, 100);
+$success-border-color: mat.m2-get-color-from-palette($success-palette, 600);
+$checkbox-border-color: mat.m2-get-color-from-palette($neutral-palette, 300);
+$subtitle-color: mat.m2-get-color-from-palette($neutral-palette, 400);
+$step-bg: mat.m2-get-color-from-palette($neutral-palette, 50);
+$step-color: mat.m2-get-color-from-palette($neutral-palette, 400);
+$step-active-bg: mat.m2-get-color-from-palette($success-palette, 100);
+$step-active-color: mat.m2-get-color-from-palette($success-palette, 600);
+$drop-zone-bg: mat.m2-get-color-from-palette($neutral-palette, 100);
+$drop-item-border-color: mat.m2-get-color-from-palette($primary-palette, 200);
+$toggle-bg: mat.m2-get-color-from-palette($neutral-palette, 100);
+$unselected-toggle-color: mat.m2-get-color-from-palette($neutral-palette, 600);
+$toggle-selected-bg: mat.m2-get-color-from-palette($primary-palette, 600);
+$toggle-unselected-bg: mat.m2-get-color-from-palette($neutral-palette, 300);
+$toggle-selected-handle-bg: mat.m2-get-color-from-palette($primary-palette, 10);
+$toggle-unselected-handle-bg: mat.m2-get-color-from-palette($primary-palette, 10);
+$avatar-letter: mat.m2-get-color-from-palette($primary-palette, 10);
+$nav-item-color: mat.m2-get-color-from-palette($neutral-palette, 700);
+$main-bg: rgb(245, 245, 250);
+$white: rgb(255, 255, 255);
+$toast-color: mat.m2-get-color-from-palette($neutral-palette, 900);
+$success-toast-bg: mat.m2-get-color-from-palette($success-palette, 100);
+$success-toast-border: mat.m2-get-color-from-palette($success-palette, 600);
+$error-toast-bg: mat.m2-get-color-from-palette($error-palette, 100);
+$error-toast-border: mat.m2-get-color-from-palette($error-palette, 500);
+$info-toast-bg: mat.m2-get-color-from-palette($information-palette, 100);
+$info-toast-border: mat.m2-get-color-from-palette($information-palette, 500);
+$warning-toast-bg: mat.m2-get-color-from-palette($warning-palette, 100);
+$warning-toast-border: mat.m2-get-color-from-palette($warning-palette, 600);
+
+// Fonts
+$font-family: 'Poppins', Arial, sans-serif;
+$font-size-xsmall: .625rem; // 10px
+$font-size-small: .75rem; // 12px
+$font-size-medium: .875rem; // 14px
+$font-size-large: 1rem; // 16px
+$font-size-xlarge: 1.125rem; // 18px
+$line-height: 1.5;
+$heading-font-weight: 600;
+
+// Headings
+$h1-font-size: 3.5rem; // 56px
+$h2-font-size: 3rem; // 48px
+$h3-font-size: 2.5rem; // 40px
+$h4-font-size: 2rem; // 32px
+$h5-font-size: 1.5rem; // 24px
+$h6-font-size: 1.25rem; // 20px
+
+// Spacing
+$spacing-unit: 0.5rem;
+$spacing-xxxxs: $spacing-unit * 0.25; // 2px
+$spacing-xxxs: $spacing-unit * 0.5; // 4px
+$spacing-xxs: $spacing-unit * 1; // 8px
+$spacing-xs: $spacing-unit * 2; // 16px
+$spacing-s: $spacing-unit * 3; // 24px
+$spacing-m: $spacing-unit * 4; // 32px;
+$spacing-l: $spacing-unit * 5; // 40px;
+$spacing-xl: $spacing-unit * 6; // 48px;
+$spacing-xxl: $spacing-unit * 7; // 56px;
+$spacing-xxxl: $spacing-unit * 8; // 64px;
+
+// Borders
+$border-radius: $spacing-xxxs; // 4px
+$border-radius-input: $spacing-xxs; // 8px
+$border-radius-option: $spacing-xxs+$spacing-xxxxs; // 10px
+$border-radius-snackbar: $spacing-xxs+$spacing-xxxs; // 12px
+$border-radius-sidebar: $spacing-xs; // 16px
+$border-radius-button: $spacing-xxl + $spacing-xxxl; // 110px
+$border-radius-container: $spacing-m; // 32px;
+$border-width: 1px;
+
+// Shadows
+$box-shadow: 0px 4px 6px 0px #1A04491F;
+
+// Transitions
+$transition-duration: .3s;
+$transition-timing-function: ease-in-out;
+
+// width
+$container-max-width: 28rem;
+$wrapper-max-width: 80rem;
+$auth-container-max-width: 44rem;
+$auth-input-max-width: 31rem;
+$input-max-width: 62rem;
+$button-max-width: 31rem;
+$checkbox-size: 1.25rem;
+$column-max-width: 33rem;
+
+// responsive
+$xxxl: 1920px;
+$xxl: 1440px;
+$xl: 1280px;
+$lg: 1024px;
+$md: 768px;
+$sm: 640px;
+$mobile-max-width: 639px;
+$mobile-min-width: 160px;

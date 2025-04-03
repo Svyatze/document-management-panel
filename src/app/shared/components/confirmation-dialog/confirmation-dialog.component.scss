@@ -1,3 +1,22 @@
+@use "variables" as variables;
+
+:host ::ng-deep {
+  .mat-mdc-raised-button {
+    background: variables.$primary-color;
+    color: variables.$white;
+    box-shadow: none;
+
+    &:hover {
+      transition: all 300ms ease-in-out;
+      background: variables.$regular-button-hover-bg
+    }
+  }
+}
+
+::ng-deep .cdk-overlay-pane .mat-mdc-dialog-surface {
+  border-radius: 12px;
+}
+
 mat-dialog-content {
   padding: 20px 0;
   min-width: 300px;
