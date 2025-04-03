@@ -8,7 +8,7 @@ import {
   inject,
   signal,
   computed,
-  DestroyRef,
+  DestroyRef, effect,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -62,6 +62,12 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
   public loading = signal(true);
   public error = signal<string | null>(null);
   public documentId: string | null = null;
+
+  constructor() {
+    effect(() => {
+      console.log(this.document(), 'document');
+    });
+  }
 
   public currentUser = this.authService.currentUser;
   public isReviewer = computed(() => this.currentUser()?.role === UserRole.REVIEWER);
@@ -207,33 +213,35 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
+
   public updateStatus(status: DocumentStatus): void {
     if (!this.document()) return;
 
+    const currentDocument = this.document()!;
+
     this.loading.set(true);
 
-    this.documentService.changeStatus(this.document()!.id!, status)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
+    this.documentService.changeStatus(currentDocument.id!, status).subscribe({
       next: (updatedDocument) => {
-        this.document.set(updatedDocument);
+        if (updatedDocument) {
+          if (!updatedDocument.name || !updatedDocument.fileUrl) {
+            this.document.set({
+              ...currentDocument,
+              status: status
+            });
+          } else {
+            this.document.set(updatedDocument);
+          }
+          this.notification.success(`Document status updated successfully`);
+        } else {
+          console.warn('API returned null document, using local status update');
 
-        let statusMessage;
-        switch (status) {
-          case DocumentStatus.UNDER_REVIEW:
-            statusMessage = 'under review';
-            break;
-          case DocumentStatus.APPROVED:
-            statusMessage = 'approved';
-            break;
-          case DocumentStatus.DECLINED:
-            statusMessage = 'declined';
-            break;
-          default:
-            statusMessage = 'updated';
+          this.document.set({
+            ...currentDocument,
+            status: status
+          });
+          this.notification.success(`Document status updated (local update)`);
         }
-
-        this.notification.success(`Document status set to ${statusMessage}`);
         this.loading.set(false);
       },
       error: (error) => {
