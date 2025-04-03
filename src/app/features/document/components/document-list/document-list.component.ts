@@ -18,8 +18,9 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { AuthService, DocumentService, NotificationService, UserService } from '../../../../core/services';
+import { AuthService, NotificationService, UserService } from '../../../../core/services';
 import { DocumentListRequest, DocumentStatus, User, UserRole } from '../../../../models';
+import {DocumentService} from '../../services';
 
 
 @Component({

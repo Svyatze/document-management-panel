@@ -4,7 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../services';
 import { UserRole } from '../../models'
 
-export const roleGuard: CanActivateFn = (route, state) => {
+export const roleGuard: CanActivateFn = (route) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -15,11 +15,9 @@ export const roleGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Redirect to dashboard if authenticated but wrong role
   if (authService.isAuthenticated()) {
     return router.createUrlTree(['/dashboard']);
   }
 
-  // Redirect to login if not authenticated
   return router.createUrlTree(['/login']);
 };

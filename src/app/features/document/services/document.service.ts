@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { signal } from '@angular/core';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 import {
   DocumentModel,
   DocumentCreateRequest,
@@ -11,7 +11,7 @@ import {
   DocumentListResponse,
   DocumentUpdateRequest,
   DocumentStatus
-} from '../../models';
+} from '../../../models';
 
 @Injectable({
   providedIn: 'root'

@@ -22,9 +22,10 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 
-import { AuthService, DocumentService, NotificationService, PdfViewerService } from '../../../../core/services';
+import { AuthService, NotificationService, PdfViewerService } from '../../../../core/services';
 import { DialogService } from '../../../../shared/services';
 import { DocumentModel, DocumentStatus, UserRole } from '../../../../models';
+import { DocumentService } from '../../services';
 
 @Component({
   selector: 'app-document-viewer',
@@ -110,9 +111,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     return this.isReviewer() && this.document()!.status === DocumentStatus.UNDER_REVIEW;
   });
 
-
-
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.documentId = this.route.snapshot.paramMap.get('id');
     if (this.documentId) {
       this.loadDocument(this.documentId);
@@ -122,7 +121,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  ngAfterViewInit(): void {
+  public ngAfterViewInit(): void {
     setTimeout(() => {
       if (this.document() && this.pdfContainer) {
         this.initPSPDFKit();
@@ -130,52 +129,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  ngOnDestroy(): void {
+  public ngOnDestroy(): void {
     this.pdfViewerService.unloadDocument();
-  }
-
-  private loadDocument(id: string): void {
-    this.documentService.getDocumentById(id)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: (document) => {
-        this.document.set(document);
-        this.loading.set(false);
-
-        if (this.pdfContainer) {
-          setTimeout(() => this.initPSPDFKit(), 0);
-        }
-      },
-      error: (error) => {
-        console.error('Error loading document:', error);
-        this.error.set('Failed to load document');
-        this.loading.set(false);
-      }
-    });
-  }
-
-  private initPSPDFKit(): void {
-    if (!this.document() || !this.document()?.fileUrl) {
-      return;
-    }
-
-    this.loading.set(true);
-
-    this.pdfViewerService.loadDocument(
-      this.pdfContainer.nativeElement,
-      this.document()!.fileUrl
-    )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-      next: () => {
-        this.loading.set(false);
-      },
-      error: (error) => {
-        console.error('Error initializing PSPDFKit:', error);
-        this.error.set('Failed to load PDF viewer');
-        this.loading.set(false);
-      }
-    });
   }
 
   public editDocument(): void {
@@ -204,7 +159,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
           .subscribe({
           next: () => {
             this.notification.success('Document deleted successfully');
-            this.router.navigate(['/dashboard/documents']);
+
+            void this.router.navigate(['/dashboard/documents']);
           },
           error: (error) => {
             console.error('Error deleting document:', error);
@@ -235,8 +191,8 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
           .subscribe({
           next: (updatedDocument) => {
             this.document.set(updatedDocument);
-            this.notification.success('Document revoked successfully');
             this.loading.set(false);
+            this.notification.success('Document revoked successfully');
           },
           error: (error) => {
             console.error('Error revoking document:', error);
@@ -260,7 +216,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       next: (updatedDocument) => {
         this.document.set(updatedDocument);
 
-        let statusMessage = '';
+        let statusMessage;
         switch (status) {
           case DocumentStatus.UNDER_REVIEW:
             statusMessage = 'under review';
@@ -280,6 +236,7 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       },
       error: (error) => {
         console.error('Error updating document status:', error);
+
         this.error.set('Failed to update document status');
         this.loading.set(false);
       }
@@ -303,5 +260,51 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
       default:
         return '';
     }
+  }
+
+  private loadDocument(id: string): void {
+    this.documentService.getDocumentById(id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (document) => {
+          this.document.set(document);
+          this.loading.set(false);
+
+          if (this.pdfContainer) {
+            setTimeout(() => this.initPSPDFKit(), 0);
+          }
+        },
+        error: (error) => {
+          console.error('Error loading document:', error);
+
+          this.error.set('Failed to load document');
+          this.loading.set(false);
+        }
+      });
+  }
+
+  private initPSPDFKit(): void {
+    if (!this.document() || !this.document()?.fileUrl) {
+      return;
+    }
+
+    this.loading.set(true);
+
+    this.pdfViewerService.loadDocument(
+      this.pdfContainer.nativeElement,
+      this.document()!.fileUrl
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.loading.set(false);
+        },
+        error: (error) => {
+          console.error('Error initializing PSPDFKit:', error);
+
+          this.error.set('Failed to load PDF viewer');
+          this.loading.set(false);
+        }
+      });
   }
 }

@@ -13,9 +13,10 @@ import { MatSelectModule } from '@angular/material/select';
 import { of, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import { DocumentService, NotificationService } from '../../../../core/services';
+import { NotificationService } from '../../../../core/services';
 import { DialogService } from '../../../../shared/services';
 import { DocumentModel, DocumentStatus } from '../../../../models';
+import { DocumentService } from '../../services';
 
 
 @Component({
