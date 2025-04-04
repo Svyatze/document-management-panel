@@ -1,6 +1,7 @@
 import { Injectable, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { Observable, from } from 'rxjs';
+import { Observable, from, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import PSPDFKit from 'pspdfkit';
 
@@ -9,10 +10,13 @@ import PSPDFKit from 'pspdfkit';
 })
 export class PdfViewerService {
   private instance: any = null;
+  private containerRef: HTMLElement | null = null;
 
   constructor(@Inject(DOCUMENT) private document: Document) {}
 
   public loadDocument(containerRef: HTMLElement, documentUrl: string): Observable<any> {
+    this.containerRef = containerRef;
+
     const window = this.document.defaultView;
     const baseUrl = `${window?.location.protocol}//${window?.location.host}/assets/pspdfkit/`;
 
@@ -42,6 +46,11 @@ export class PdfViewerService {
         this.instance = instance;
         return instance;
       })
+    ).pipe(
+      catchError(error => {
+        console.error('Error loading PDF document:', error);
+        return of(null);
+      })
     );
   }
 
@@ -52,14 +61,19 @@ export class PdfViewerService {
           this.instance.dispose();
         } else if (typeof this.instance.unload === 'function') {
           this.instance.unload();
-        } else {
-          console.warn('Could not find dispose or unload method on PSPDFKit instance');
         }
-        this.instance = null;
       }
     } catch (error) {
-      console.error('Error unloading PSPDFKit:', error);
+      console.warn('Error disposing PSPDFKit instance:', error);
+    } finally {
       this.instance = null;
+
+      if (this.containerRef && this.document.body.contains(this.containerRef)) {
+        while (this.containerRef.firstChild) {
+          this.containerRef.removeChild(this.containerRef.firstChild);
+        }
+      }
+      this.containerRef = null;
     }
   }
 }

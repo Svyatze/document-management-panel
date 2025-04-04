@@ -8,7 +8,7 @@ import {
   inject,
   signal,
   computed,
-  DestroyRef, effect,
+  DestroyRef,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -60,14 +60,9 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
   public document = signal<DocumentModel | null>(null);
   public loading = signal(true);
+  private destroying = signal(false);
   public error = signal<string | null>(null);
   public documentId: string | null = null;
-
-  constructor() {
-    effect(() => {
-      console.log(this.document(), 'document');
-    });
-  }
 
   public currentUser = this.authService.currentUser;
   public isReviewer = computed(() => this.currentUser()?.role === UserRole.REVIEWER);
@@ -131,16 +126,20 @@ export class DocumentViewerComponent implements OnInit, OnDestroy, AfterViewInit
 
   public ngAfterViewInit(): void {
     setTimeout(() => {
-      if (this.document() && this.pdfContainer) {
+      if (!this.destroying() && this.document() && this.pdfContainer) {
         this.initPSPDFKit();
       }
-    });
+    }, 100);
   }
+
 
   public ngOnDestroy(): void {
-    this.pdfViewerService.unloadDocument();
-  }
+    this.destroying.set(true);
 
+    setTimeout(() => {
+      this.pdfViewerService.unloadDocument();
+    });
+  }
   public editDocument(): void {
     if (!this.document()) return;
 
